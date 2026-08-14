@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "twaManifest": {
+    "applicationId": "com.timely.timer",
+    "name": "타이머",
+    "packageName": "com.timely.timer",
+    "versionCode": 1,
+    "versionName": "1.0.0",
+    "webManifestUrl": "https://insu0502.github.io/timer-twa/manifest.json",
+    "launchUrl": "https://insu0502.github.io/timer-twa/index.html",
+    "display": "standalone",
+    "orientation": "portrait",
+    "themeColor": "#3b82f6",
+    "backgroundColor": "#3b82f6",
+    "statusBarColor": "#3b82f6",
+    "navigationBarColor": "#0f172a",
+    "splashScreen": {
+      "backgroundColor": "#3b82f6",
+      "centered": true,
+      "Drawable": {
+        "src": "icon-512.png"
+      }
+    },
+    "icons": [
+      {
+        "src": "icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ],
+    "digitallySign": true,
+    "keyStore": {
+      "path": "release-keystore.jks",
+      "alias": "timer-key",
+      "storePassword": "android",
+      "keyPassword": "android",
+      "keyStorePassword": "android"
+    },
+    "enablePlayBilling": false,
+    "customTabsRedirectEnabled": false,
+    "splashScreenFadeDuration": 300,
+    "keepAssetBar": false,
+    "enableUrlBarHiding": true,
+    "enableOfflineSupport": false,
+    "minimumSdkVersion": 21,
+    "targetSdkVersion": 34,
+    "compileSdkVersion": 34,
+    "buildToolsVersion": "34.0.0"
+  }
+}
