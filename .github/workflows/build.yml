@@ -44,11 +44,13 @@ jobs:
           echo "=== config.json ==="
           cat config.json
 
-      - name: Bubblewrap 초기화 및 빌드
+      - name: Bubblewrap 초기화 및 빌드 (자동 응답)
         run: |
           cd www
-          # manifest.json을 GitHub Pages URL로 전달 (bubblewrap init --manifest는 URL을 기대)
-          bubblewrap init --config config.json --manifest https://insu0502.github.io/timer-twa/manifest.json
+          # Bubblewrap init이 물어보는 질문들에 자동 응답
+          # Domain, URL path, App name, Package name, App version 등
+          printf 'insu0502.github.io\n/\n타이머\nTimer\ncom.timely.timer\n1.0.0\n1\nno\n' \
+            | bubblewrap init --config config.json --manifest https://insu0502.github.io/timer-twa/manifest.json
           # 빌드 실행
           bubblewrap build --config config.json --generate-apk --generate-aab --skip/sdk-version-check
 
