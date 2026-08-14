@@ -1,0 +1,50 @@
+name: Build TWA APK/AAB
+
+on:
+  workflow_dispatch:
+    inputs:
+      manifest_json:
+        description: 'manifest.json 전체 내용 (raw JSON)'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v4
+
+      - name: JDK 17 설치
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Android SDK 설치
+        uses: android-actions/setup-android@v3
+
+      - name: Bubblewrap 설치
+        run: |
+          npm install -g @bubblewrap/cli
+
+      - name: 빌드용 파일 정리
+        run: |
+          mkdir -p www
+          echo '${{ github.event.inputs.manifest_json }}' > www/manifest.json
+          cp icon-512.png www/icon-512.png 2>/dev/null || true
+          cp index.html www/index.html 2>/dev/null || true
+
+      - name: Bubblewrap 초기화 및 빌드
+        run: |
+          cd www
+          bubblewrap init --manifest manifest.json
+          bubblewrap build --generate-apk --generate-aab --skip/sdk-version-check
+
+      - name: 결과물 업로드 (아티팩트)
+        uses: actions/upload-artifact@v4
+        with:
+          name: twa-build-output
+          path: |
+            build/outputs/apk/debug/*.apk
+            build/outputs/bundle/debug/*.aab
+          retention-days: 5
