@@ -29,30 +29,26 @@ jobs:
         run: |
           npm install -g @bubblewrap/cli
 
-      - name: 파일 정리 + config.json 생성
-        env:
-          JAVA_HOME: ${{ env.JAVA_HOME }}
-          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+      - name: Bubblewrap 초기화 및 빌드
         run: |
-          mkdir -p www
-          echo '${{ github.event.inputs.manifest_json }}' > www/manifest.json
-          cp icon-512.png www/icon-512.png 2>/dev/null || true
-          cp index.html www/index.html 2>/dev/null || true
           cd www
-          # Bubblewrap 설정 파일 생성 (비대화형 빌드용)
-          cat > config.json << EOF
-          {
-            "jdkPath": "${JAVA_HOME}",
-            "androidSdkPath": "${ANDROID_HOME}"
-          }
-          EOF
+          # 이미 config.json이 있는지 확인, 없으면 생성
+          if [ ! -f config.json ]; then
+            cat > config.json << EOF
+            {
+              "jdkPath": "${JAVA_HOME}",
+              "androidSdkPath": "${ANDROID_HOME}"
+            }
+            EOF
+          fi
           echo "=== config.json ==="
           cat config.json
-
-      - name: Bubblewrap 빌드
-        run: |
-          cd www
+          # Bubblewrap 초기화 (twa-manifest.json 생성)
+          bubblewrap init --config config.json --manifest manifest.json
+          # 빌드 실행
           bubblewrap build --config config.json --generate-apk --generate-aab --skip/sdk-version-check
+
+
 
       - name: 결과물 업로드 (아티팩트)
         uses: actions/upload-artifact@v4
