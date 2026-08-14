@@ -40,7 +40,8 @@ jobs:
           cp index.html www/index.html 2>/dev/null || true
           cd www
           # Bubblewrap 설정 파일 생성 (비대화형 빌드용)
-          cat > config.json << 'CFGEOF'
+          # unquoted heredoc이어야 JAVA_HOME, ANDROID_HOME이 실제 경로로 확장됨
+          cat > config.json << CFGEOF
           {
             "jdkPath": "${JAVA_HOME}",
             "androidSdkPath": "${ANDROID_HOME}"
