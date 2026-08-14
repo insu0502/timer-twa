@@ -5,7 +5,7 @@
   "start_url": "https://insu0502.github.io/timer-twa/index.html",
   "scope": "https://insu0502.github.io/timer-twa/",
   "icons": [
-    { "src": "/timer-twa/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "https://insu0502.github.io/timer-twa/icon-512.png", "sizes": "512x512", "type": "image/png" }
   ],
   "display": "standalone",
   "theme_color": "#3b82f6",
