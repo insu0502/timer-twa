@@ -37,7 +37,7 @@ jobs:
       - name: Bubblewrap 초기화 및 빌드
         run: |
           cd www
-          bubblewrap init --manifest manifest.json
+          echo 'no' | bubblewrap init --manifest manifest.json --no-install-jdk 2>/dev/null || echo 'no' | bubblewrap init --manifest manifest.json
           bubblewrap build --generate-apk --generate-aab --skip/sdk-version-check
 
       - name: 결과물 업로드 (아티팩트)
