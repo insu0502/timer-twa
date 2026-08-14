@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>타이머</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#3b82f6">
+  <style>
+    :root { --primary: #3b82f6; --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px; }
+    .logo { width: 64px; height: 64px; margin-bottom: 16px; }
+    h1 { font-size: 20px; font-weight: 600; margin-bottom: 24px; }
+    .timer-display { font-size: 72px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 2px; text-align: center; margin-bottom: 32px; background: var(--card); padding: 24px 48px; border-radius: 16px; min-width: 280px; }
+    .controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 32px; }
+    button { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.2s; }
+    button:hover { opacity: 0.85; }
+    button.secondary { background: var(--card); color: var(--text); }
+    button.danger { background: #ef4444; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .presets { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 24px; }
+    .preset-btn { background: var(--card); color: var(--text); border: 1px solid #334155; padding: 8px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; }
+    .preset-btn:hover { border-color: var(--primary); }
+    .preset-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .lap-section { width: 100%; max-width: 400px; margin-top: 16px; }
+    .lap-section h2 { font-size: 14px; color: var(--muted); margin-bottom: 8px; }
+    .lap-list { max-height: 160px; overflow-y: auto; }
+    .lap-item { display: flex; justify-content: space-between; padding: 8px 12px; background: var(--card); border-radius: 8px; margin-bottom: 4px; font-size: 14px; }
+    .lap-item span:first-child { color: var(--muted); }
+    .lap-item span:last-child { font-variant-numeric: tabular-nums; }
+    .status { font-size: 13px; color: var(--muted); margin-top: 16px; text-align: center; }
+  </style>
+</head>
+<body>
+  <img class="logo" src="/icon-512.png" alt="타이머" width="64" height="64">
+  <h1>타이머</h1>
+
+  <div class="timer-display" id="display">00:00:00</div>
+
+  <div class="presets">
+    <button class="preset-btn" data-min="1">1분</button>
+    <button class="preset-btn" data-min="3">3분</button>
+    <button class="preset-btn" data-min="5">5분</button>
+    <button class="preset-btn" data-min="10">10분</button>
+    <button class="preset-btn" data-min="15">15분</button>
+    <button class="preset-btn" data-min="30">30분</button>
+  </div>
+
+  <div class="controls">
+    <button id="startBtn">시작</button>
+    <button class="secondary" id="pauseBtn" disabled>일시정지</button>
+    <button class="secondary" id="resetBtn">초기화</button>
+    <button class="danger" id="lapBtn" disabled>랩</button>
+  </div>
+
+  <div class="lap-section">
+    <h2>랩타임</h2>
+    <div class="lap-list" id="lapList"></div>
+  </div>
+
+  <div class="status" id="status">준비</div>
+
+  <script>
+    let totalSeconds = 0;
+    let remaining = 0;
+    let running = false;
+    let interval = null;
+    let lapCount = 0;
+
+    const display = document.getElementById('display');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const lapBtn = document.getElementById('lapBtn');
+    const lapList = document.getElementById('lapList');
+    const status = document.getElementById('status');
+
+    function formatTime(sec) {
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
+      return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+
+    function updateDisplay() { display.textContent = formatTime(remaining); }
+
+    function beep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 800;
+        gain.gain.value = 0.3;
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+        osc.stop(ctx.currentTime + 0.5);
+      } catch(e) {}
+    }
+
+    function tick() {
+      if (remaining > 0) {
+        remaining--;
+        updateDisplay();
+        if (remaining === 0) {
+          clearInterval(interval);
+          running = false;
+          startBtn.disabled = false;
+          pauseBtn.disabled = true;
+          lapBtn.disabled = true;
+          status.textContent = '완료!';
+          beep();
+          setTimeout(() => beep(), 300);
+          setTimeout(() => beep(), 600);
+        }
+      }
+    }
+
+    startBtn.addEventListener('click', () => {
+      if (!running) {
+        if (remaining === 0) {
+          status.textContent = '시간을 설정해주세요';
+          return;
+        }
+        running = true;
+        startBtn.disabled = true;
+        pauseBtn.disabled = false;
+        lapBtn.disabled = false;
+        status.textContent = '실행 중';
+        interval = setInterval(tick, 1000);
+      }
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      if (running) {
+        running = false;
+        clearInterval(interval);
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+        status.textContent = '일시정지';
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      running = false;
+      clearInterval(interval);
+      remaining = totalSeconds;
+      updateDisplay();
+      startBtn.disabled = false;
+      pauseBtn.disabled = true;
+      lapBtn.disabled = true;
+      status.textContent = '준비';
+      lapList.innerHTML = '';
+      lapCount = 0;
+    });
+
+    lapBtn.addEventListener('click', () => {
+      if (running) {
+        lapCount++;
+        const lapSec = remaining;
+        const el = document.createElement('div');
+        el.className = 'lap-item';
+        el.innerHTML = `<span>랩 ${lapCount}</span><span>${formatTime(lapSec)}</span>`;
+        lapList.prepend(el);
+      }
+    });
+
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        totalSeconds = parseInt(btn.dataset.min) * 60;
+        remaining = totalSeconds;
+        updateDisplay();
+        if (!running) {
+          status.textContent = '준비';
+          startBtn.disabled = false;
+          pauseBtn.disabled = true;
+          lapBtn.disabled = true;
+        }
+      });
+    });
+
+    updateDisplay();
+  </script>
+</body>
+</html>
