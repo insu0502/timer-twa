@@ -2,10 +2,6 @@ name: Build TWA APK/AAB
 
 on:
   workflow_dispatch:
-    inputs:
-      manifest_json:
-        description: 'manifest.json 전체 내용 (raw JSON)'
-        required: true
 
 jobs:
   build:
@@ -30,17 +26,17 @@ jobs:
           npm install -g @bubblewrap/cli
 
       - name: 파일 정리 + config.json 생성
-        env:
-          JAVA_HOME: ${{ env.JAVA_HOME }}
-          ANDROID_HOME: ${{ env.ANDROID_HOME }}
         run: |
           mkdir -p www
-          echo '${{ github.event.inputs.manifest_json }}' > www/manifest.json
           cp icon-512.png www/icon-512.png 2>/dev/null || true
           cp index.html www/index.html 2>/dev/null || true
+          # 저장소에 이미 있는 manifest.json을 www/로 복사
+          cp manifest.json www/manifest.json 2>/dev/null || true
           cd www
+          echo "=== manifest.json ==="
+          cat manifest.json
           # Bubblewrap 설정 파일 생성 (비대화형 빌드용)
-          # unquoted heredoc이어야 JAVA_HOME, ANDROID_HOME이 실제 경로로 확장됨
+          # unquoted heredoc으로 JAVA_HOME, ANDROID_HOME 실제 경로 확장
           cat > config.json << CFGEOF
           {
             "jdkPath": "${JAVA_HOME}",
