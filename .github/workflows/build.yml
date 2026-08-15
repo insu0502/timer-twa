@@ -2,8 +2,10 @@
 name: Build TWA APK/AAB
 
 on:
-  workflow_dispatch:
-
+  push:
+    branches: [main]
+    paths:
+      - 'apps/**'
 jobs:
   build:
     runs-on: ubuntu-latest
