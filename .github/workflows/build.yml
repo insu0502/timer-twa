@@ -1,37 +1,53 @@
 name: Build TWA APK/AAB
+
 on:
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: 체크아웃
         uses: actions/checkout@v4
+
       - name: JDK 17 + Android SDK 설치
         uses: android-actions/setup-android@v3
         with:
           cmdline-tools-version: 11076708
+
       - name: JDK 17 설치
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+
       - name: Node.js 설치
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
       - name: Keystore 디코딩 (GitHub Secrets → 파일)
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
         run: |
           echo "$KEYSTORE_B64" | base64 -d > www/release-keystore.jks
+          echo "✅ Keystore 복원 완료: $(stat -c%s www/release-keystore.jks 2>/dev/null || stat -f%z www/release-keystore.jks) bytes"
           ls -la www/release-keystore.jks
-      - name: Bubblewrap CLI + Core 설치
+
+      - name: Bubblewrap CLI 전역 설치
         run: |
-          npm install -g @bubblewrap/cli @bubblewrap/core
+          npm install -g @bubblewrap/cli
+          echo "✅ Bubblewrap CLI 전역 설치 완료"
+
+      - name: @bubblewrap/core 로컬 설치
+        run: |
+          npm install @bubblewrap/core
+          echo "✅ @bubblewrap/core 로컬 설치 완료"
+
       - name: Android 프로젝트 생성 (bubblewrap core API — TwaGenerator)
         run: |
           node generate-project.js
+
       - name: config.json 생성
         run: |
           cd www
@@ -41,6 +57,9 @@ jobs:
             "androidSdkPath": "${ANDROID_HOME}"
           }
           CFGEOF
+          echo "=== config.json ==="
+          cat config.json
+
       - name: Bubblewrap 빌드
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
@@ -48,6 +67,7 @@ jobs:
         run: |
           cd www
           bubblewrap build --config config.json --skipPwaValidation
+
       - name: 결과물 업로드 (아티팩트)
         uses: actions/upload-artifact@v4
         with:
