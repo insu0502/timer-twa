@@ -39,7 +39,7 @@ jobs:
           npm install -g @bubblewrap/cli
           echo "✅ Bubblewrap CLI 전역 설치 완료"
 
-      - name: "@bubblewrap/core 로컬 설치
+      - name: @bubblewrap/core 로컬 설치
         run: |
           npm install @bubblewrap/core
           echo "✅ @bubblewrap/core 로컬 설치 완료"
