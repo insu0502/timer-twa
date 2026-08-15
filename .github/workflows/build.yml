@@ -21,9 +21,10 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Bubblewrap 설치
-        run: |
-          npm install -g @bubblewrap/cli
+      - name: Node.js 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
       - name: Keystore 디코딩 (GitHub Secrets → 파일)
         env:
@@ -33,10 +34,18 @@ jobs:
           echo "✅ Keystore 복원 완료: $(stat -c%s www/release-keystore.jks 2>/dev/null || stat -f%z www/release-keystore.jks) bytes"
           ls -la www/release-keystore.jks
 
-      - name: config.json 생성 + 빌드
+      - name: Bubblewrap CLI + Core 설치
+        run: |
+          npm install -g @bubblewrap/cli @bubblewrap/core
+          echo "✅ Bubblewrap CLI + Core 설치 완료"
+
+      - name: Android 프로젝트 생성 (bubblewrap core API — TwaGenerator)
+        run: |
+          node generate-project.js
+
+      - name: config.json 생성
         run: |
           cd www
-          # Bubblewrap 설정 파일 생성 (비대화형 빌드용) — init은 필요 없음
           cat > config.json << CFGEOF
           {
             "jdkPath": "${JAVA_HOME}",
@@ -45,14 +54,11 @@ jobs:
           CFGEOF
           echo "=== config.json ==="
           cat config.json
-          echo ""
-          echo "=== twa-manifest.json (이미 www/에 있음) ==="
-          cat twa-manifest.json
-          echo ""
-          echo "=== 빌드 시작 ==="
-          # bubblewrap update로 checksum 생성 후 build (또는 "no" 자동 응답)
-          # twa-manifest.json이 이미 있으므로 update 건너뛰고 build
-          echo "no" | bubblewrap build \
+
+      - name: Bubblewrap 빌드
+        run: |
+          cd www
+          bubblewrap build \
             --config config.json \
             --generate-apk \
             --generate-aab \
