@@ -1,8 +1,8 @@
+# TWA APK/AAB 빌드 워크플로우
 name: Build TWA APK/AAB
 
 on:
   workflow_dispatch:
-    inputs: {}
 
 jobs:
   build:
@@ -38,14 +38,12 @@ jobs:
       - name: Bubblewrap CLI 전역 설치
         run: |
           npm install -g @bubblewrap/cli
-          echo "Bubblewrap CLI installed"
 
       - name: @bubblewrap/core 로컬 설치
         run: |
           npm install @bubblewrap/core
-          echo "@bubblewrap/core installed"
 
-      - name: Android 프로젝트 생성 (bubblewrap core API)
+      - name: Android 프로젝트 생성
         run: |
           node generate-project.js
 
@@ -58,8 +56,6 @@ jobs:
             "androidSdkPath": "${ANDROID_HOME}"
           }
           CFGEOF
-          echo "=== config.json ==="
-          cat config.json
 
       - name: Bubblewrap 빌드
         env:
