@@ -1,3 +1,4 @@
+(async () => {
 #!/usr/bin/env node
 'use strict';
 
@@ -45,7 +46,7 @@ try {
     // 패턴 1: TwaGenerator 클래스 (사용자가 언급한 API)
     if (typeof core.TwaGenerator === 'function') {
         console.log('🔄 Using TwaGenerator class...');
-        const generator = new core.TwaGenerator(twaManifest);
+     const result = await generator.createTwaProject(outputDir, twaManifest);
    const result = await generator.createTwaProject(outputDir, twaManifest);
         console.log('✅ TwaGenerator 완료');
         console.log('   결과:', result);
@@ -85,3 +86,4 @@ try {
 
 console.log('=== Android 프로젝트 생성 완료 ===');
 console.log('   출력 디렉토리:', outputDir);
+    })();
