@@ -62,7 +62,7 @@ jobs:
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           cd www
-echo "n" | bubblewrap build --config config.json --skipPwaValidation
+          echo "n" | bubblewrap build --config config.json --skipPwaValidation
 
       - name: 결과물 업로드 (아티팩트)
         uses: actions/upload-artifact@v4
