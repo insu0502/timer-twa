@@ -21,6 +21,7 @@
     "path": "release-keystore.jks",
     "alias": "timer-key"
   },
+  "enableNotifications": false,
   "enablePlayBilling": false,
   "customTabsRedirectEnabled": false,
   "keepAssetBar": false,
