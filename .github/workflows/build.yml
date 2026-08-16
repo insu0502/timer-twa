@@ -1,4 +1,4 @@
-# TWA APK/AAB 빌드 워크플로우 (Timer TWA)
+# TWA APK/AAB 빌드 자동화 워크플로우 (Timer TWA)
 name: Build TWA APK/AAB
 
 on:
@@ -7,6 +7,7 @@ on:
     paths-ignore:
       - '.github/**'
       - '**.md'
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -42,7 +43,7 @@ jobs:
         run: |
           npm install -g @bubblewrap/cli
 
-      - name: "@bubblewrap/core 로컬 설치
+      - name: "@bubblewrap/core 로컬 설치"
         run: |
           npm install @bubblewrap/core
 
@@ -50,7 +51,7 @@ jobs:
         run: |
           node generate-project.js
 
-     - name: config.json 생성
+      - name: config.json 생성
         run: |
           cd www
           echo "{\"jdkPath\": \"$JAVA_HOME\", \"androidSdkPath\": \"$ANDROID_HOME\"}" > config.json
