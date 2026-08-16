@@ -50,15 +50,10 @@ jobs:
         run: |
           node generate-project.js
 
-      - name: config.json 생성
+     - name: config.json 생성
         run: |
           cd www
-          cat > config.json <<CFGEOF
-          {
-            "jdkPath": "${JAVA_HOME}",
-            "androidSdkPath": "${ANDROID_HOME}"
-          }
-          CFGEOF
+          echo "{\"jdkPath\": \"$JAVA_HOME\", \"androidSdkPath\": \"$ANDROID_HOME\"}" > config.json
 
       - name: Bubblewrap 빌드
         env:
