@@ -2,6 +2,7 @@
   "version": 1,
   "twaManifest": {
     "applicationId": "com.timely.timer",
+    "host": "insu0502.github.io",
     "name": "타이머",
     "packageName": "com.timely.timer",
     "versionCode": 1,
