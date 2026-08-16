@@ -4,6 +4,7 @@
     "applicationId": "com.timely.timer",
     "host": "insu0502.github.io",
     "startUrl": "/index.html",
+     "iconUrl": "https://insu0502.github.io/timer-twa/icon-512.png",
     "name": "타이머",
     "packageName": "com.timely.timer",
     "versionCode": 1,
