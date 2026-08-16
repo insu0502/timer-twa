@@ -33,7 +33,7 @@
       }
     ],
     "digitallySign": true,
-    "keyStore": {
+    "signingKey": {
       "path": "release-keystore.jks",
       "alias": "timer-key",
       "storePassword": "android",
