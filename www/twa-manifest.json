@@ -2,6 +2,7 @@
   "version": 1,
   "twaManifest": {
     "applicationId": "com.timely.timer",
+    "packageId": "com.timely.timer",
     "host": "insu0502.github.io",
     "startUrl": "/index.html",
      "iconUrl": "https://insu0502.github.io/timer-twa/icon-512.png",
