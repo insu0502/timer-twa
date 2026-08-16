@@ -46,7 +46,7 @@ try {
     if (typeof core.TwaGenerator === 'function') {
         console.log('🔄 Using TwaGenerator class...');
         const generator = new core.TwaGenerator(twaManifest);
-        const result = generator.generate({ directory: outputDir });
+   const result = await generator.createTwaProject(outputDir, twaManifest);
         console.log('✅ TwaGenerator 완료');
         console.log('   결과:', result);
     }
