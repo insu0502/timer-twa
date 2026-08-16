@@ -4,8 +4,9 @@ name: Build TWA APK/AAB
 on:
   push:
     branches: [main]
-    paths:
-      - 'apps/**'
+    paths-ignore:
+      - '.github/**'
+      - '**.md'
 jobs:
   build:
     runs-on: ubuntu-latest
